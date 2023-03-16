@@ -154,14 +154,23 @@ impl<F: Field> CopyCircuit<F> {
                     meta.query_advice(src_addr_end, Rotation(2)),
                 );
             });
+            // before:
+            // ```
+            // let rw_diff = and::expr([
+            //     or::expr([
+            //         tag.value_equals(CopyDataType::Memory, Rotation::cur())(meta),
+            //         tag.value_equals(CopyDataType::TxLog, Rotation::cur())(meta),
+            //     ]),
+            //     not::expr(meta.query_advice(is_pad, Rotation::cur())),
+            // ]);
+            // ```
+            // after:
+            let rw_diff = expr_macros::bool!(
+                (tag.value_equals(CopyDataType::Memory, Rotation::cur())(meta)
+                    || tag.value_equals(CopyDataType::TxLog, Rotation::cur())(meta))
+                    && !meta.query_advice(is_pad, Rotation::cur())
+            );
 
-            let rw_diff = and::expr([
-                or::expr([
-                    tag.value_equals(CopyDataType::Memory, Rotation::cur())(meta),
-                    tag.value_equals(CopyDataType::TxLog, Rotation::cur())(meta),
-                ]),
-                not::expr(meta.query_advice(is_pad, Rotation::cur())),
-            ]);
             cb.condition(
                 not::expr(meta.query_advice(is_last, Rotation::cur())),
                 |cb| {
