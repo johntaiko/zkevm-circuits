@@ -249,7 +249,7 @@ mod extcodecopy_tests {
 
         assert!(builder.sdb.add_account_to_access_list(external_address));
 
-        let tx_id = 1;
+        let tx_id = 2;
         let transaction = &builder.block.txs()[tx_id - 1];
         let call_id = transaction.calls()[0].call_id;
 

@@ -109,7 +109,7 @@ mod sload_tests {
     };
     use mock::{
         test_ctx::{helpers::*, TestContext},
-        MOCK_ACCOUNTS,
+        CALLS_IN_ANCHOR, MOCK_ACCOUNTS,
     };
     use pretty_assertions::assert_eq;
 
@@ -150,7 +150,7 @@ mod sload_tests {
             .handle_block(&block.eth_block, &block.geth_traces)
             .unwrap();
 
-        let step = builder.block.txs()[0]
+        let step = builder.block.txs()[1]
             .steps()
             .iter()
             .find(|step| step.exec_state == ExecState::Op(OpcodeId::SLOAD))
@@ -163,11 +163,11 @@ mod sload_tests {
             [
                 (
                     RW::READ,
-                    &StackOp::new(1, StackAddress::from(1023), Word::from(0x0u32))
+                    &StackOp::new(CALLS_IN_ANCHOR + 1, StackAddress::from(1023), Word::from(0x0u32))
                 ),
                 (
                     RW::WRITE,
-                    &StackOp::new(1, StackAddress::from(1023), Word::from(expected_loaded_value))
+                    &StackOp::new(CALLS_IN_ANCHOR + 1, StackAddress::from(1023), Word::from(expected_loaded_value))
                 )
             ]
         );
@@ -182,7 +182,7 @@ mod sload_tests {
                     Word::from(0x0u32),
                     Word::from(expected_loaded_value),
                     Word::from(expected_loaded_value),
-                    1,
+                    2,
                     Word::from(0x0u32),
                 )
             )
@@ -195,7 +195,7 @@ mod sload_tests {
             (
                 RW::WRITE,
                 &TxAccessListAccountStorageOp {
-                    tx_id: 1,
+                    tx_id: 2,
                     address: MOCK_ACCOUNTS[0],
                     key: Word::from(0x0u32),
                     is_warm: true,

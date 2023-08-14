@@ -44,7 +44,7 @@ mod codesize_tests {
     };
     use mock::{
         test_ctx::helpers::{account_0_code_account_1_no_code, tx_from_1_to_0},
-        TestContext,
+        TestContext, CALLS_IN_ANCHOR,
     };
 
     use crate::{
@@ -83,7 +83,7 @@ mod codesize_tests {
             .handle_block(&block.eth_block, &block.geth_traces)
             .unwrap();
 
-        let step = builder.block.txs()[0]
+        let step = builder.block.txs()[1]
             .steps()
             .iter()
             .find(|step| step.exec_state == ExecState::Op(OpcodeId::CODESIZE))
@@ -95,7 +95,11 @@ mod codesize_tests {
         assert_eq!(op.rw(), RW::WRITE);
         assert_eq!(
             op.op(),
-            &StackOp::new(1, StackAddress::from(st_addr), Word::from(codesize))
+            &StackOp::new(
+                CALLS_IN_ANCHOR + 1,
+                StackAddress::from(st_addr),
+                Word::from(codesize)
+            )
         );
     }
 

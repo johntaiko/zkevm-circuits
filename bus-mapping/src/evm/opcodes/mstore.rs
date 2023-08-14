@@ -91,7 +91,10 @@ mod mstore_tests {
         Word,
     };
     use itertools::Itertools;
-    use mock::test_ctx::{helpers::*, TestContext};
+    use mock::{
+        test_ctx::{helpers::*, TestContext},
+        CALLS_IN_ANCHOR,
+    };
     use pretty_assertions::assert_eq;
 
     #[test]
@@ -119,7 +122,7 @@ mod mstore_tests {
             .handle_block(&block.eth_block, &block.geth_traces)
             .unwrap();
 
-        let step = builder.block.txs()[0]
+        let step = builder.block.txs()[1]
             .steps()
             .iter()
             .filter(|step| step.exec_state == ExecState::Op(OpcodeId::MSTORE))
@@ -133,11 +136,11 @@ mod mstore_tests {
             [
                 (
                     RW::READ,
-                    &StackOp::new(1, StackAddress::from(1022u32), Word::from(0x100u64))
+                    &StackOp::new(CALLS_IN_ANCHOR + 1, StackAddress::from(1022u32), Word::from(0x100u64))
                 ),
                 (
                     RW::READ,
-                    &StackOp::new(1, StackAddress::from(1023u32), Word::from(0x1234u64))
+                    &StackOp::new(CALLS_IN_ANCHOR + 1, StackAddress::from(1023u32), Word::from(0x1234u64))
                 )
             ]
         );
@@ -154,7 +157,7 @@ mod mstore_tests {
                 .enumerate()
                 .map(|(idx, byte)| (
                     RW::WRITE,
-                    MemoryOp::new(1, MemoryAddress(idx + 0x100), byte)
+                    MemoryOp::new(CALLS_IN_ANCHOR + 1, MemoryAddress(idx + 0x100), byte)
                 ))
                 .collect_vec()
         )
@@ -185,7 +188,7 @@ mod mstore_tests {
             .handle_block(&block.eth_block, &block.geth_traces)
             .unwrap();
 
-        let step = builder.block.txs()[0]
+        let step = builder.block.txs()[1]
             .steps()
             .iter()
             .find(|step| step.exec_state == ExecState::Op(OpcodeId::MSTORE8))
@@ -198,11 +201,11 @@ mod mstore_tests {
             [
                 (
                     RW::READ,
-                    &StackOp::new(1, StackAddress::from(1022u32), Word::from(0x100u64))
+                    &StackOp::new(CALLS_IN_ANCHOR + 1, StackAddress::from(1022u32), Word::from(0x100u64))
                 ),
                 (
                     RW::READ,
-                    &StackOp::new(1, StackAddress::from(1023u32), Word::from(0x1234))
+                    &StackOp::new(CALLS_IN_ANCHOR + 1, StackAddress::from(1023u32), Word::from(0x1234))
                 )
             ]
         );
@@ -210,7 +213,10 @@ mod mstore_tests {
         let memory_op = &builder.block.container.memory[step.bus_mapping_instance[2].as_usize()];
         assert_eq!(
             (memory_op.rw(), memory_op.op()),
-            (RW::WRITE, &MemoryOp::new(1, MemoryAddress(0x100), 0x34))
+            (
+                RW::WRITE,
+                &MemoryOp::new(CALLS_IN_ANCHOR + 1, MemoryAddress(0x100), 0x34)
+            )
         )
     }
 }

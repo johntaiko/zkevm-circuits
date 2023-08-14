@@ -22,6 +22,7 @@ use halo2_proofs::{
     plonk::{keygen_vk, Advice, Circuit, Column, ConstraintSystem},
     poly::kzg::commitment::ParamsKZG,
 };
+use mock::CALLS_IN_ANCHOR;
 use rand::SeedableRng;
 use std::collections::{BTreeSet, HashMap};
 use strum::IntoEnumIterator;
@@ -119,12 +120,12 @@ fn state_circuit_simple_2() {
     let stack_op_0 = Operation::new(
         RWCounter::from(17),
         RW::WRITE,
-        StackOp::new(1, StackAddress::from(1), Word::from(32)),
+        StackOp::new(CALLS_IN_ANCHOR + 1, StackAddress::from(1), Word::from(32)),
     );
     let stack_op_1 = Operation::new(
         RWCounter::from(87),
         RW::READ,
-        StackOp::new(1, StackAddress::from(1), Word::from(32)),
+        StackOp::new(CALLS_IN_ANCHOR + 1, StackAddress::from(1), Word::from(32)),
     );
 
     let storage_op_0 = Operation::new(

@@ -733,7 +733,7 @@ mod tests {
                 .handle_block(&block.eth_block, &block.geth_traces)
                 .unwrap();
 
-            let step = block.geth_traces[0]
+            let step = block.geth_traces[1]
                 .struct_logs
                 .last()
                 .expect("at least one step");

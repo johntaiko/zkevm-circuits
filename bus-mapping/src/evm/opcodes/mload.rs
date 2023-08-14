@@ -73,7 +73,10 @@ mod mload_tests {
         Word,
     };
     use itertools::Itertools;
-    use mock::test_ctx::{helpers::*, TestContext};
+    use mock::{
+        test_ctx::{helpers::*, TestContext},
+        CALLS_IN_ANCHOR,
+    };
     use pretty_assertions::assert_eq;
 
     #[test]
@@ -101,7 +104,7 @@ mod mload_tests {
             .handle_block(&block.eth_block, &block.geth_traces)
             .unwrap();
 
-        let step = builder.block.txs()[0]
+        let step = builder.block.txs()[1]
             .steps()
             .iter()
             .find(|step| step.exec_state == ExecState::Op(OpcodeId::MLOAD))
@@ -114,11 +117,11 @@ mod mload_tests {
             [
                 (
                     RW::READ,
-                    &StackOp::new(1, StackAddress::from(1023), Word::from(0x40))
+                    &StackOp::new(CALLS_IN_ANCHOR + 1, StackAddress::from(1023), Word::from(0x40))
                 ),
                 (
                     RW::WRITE,
-                    &StackOp::new(1, StackAddress::from(1023), Word::from(0x80))
+                    &StackOp::new(CALLS_IN_ANCHOR + 1, StackAddress::from(1023), Word::from(0x80))
                 )
             ]
         );
@@ -133,7 +136,10 @@ mod mload_tests {
                 .to_be_bytes()
                 .into_iter()
                 .enumerate()
-                .map(|(idx, byte)| (RW::READ, MemoryOp::new(1, MemoryAddress(idx + 0x40), byte)))
+                .map(|(idx, byte)| (
+                    RW::READ,
+                    MemoryOp::new(CALLS_IN_ANCHOR + 1, MemoryAddress(idx + 0x40), byte)
+                ))
                 .collect_vec()
         )
     }

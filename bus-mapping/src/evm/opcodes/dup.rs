@@ -39,7 +39,10 @@ mod dup_tests {
     };
     use eth_types::{bytecode, evm_types::StackAddress, geth_types::GethData, word};
     use itertools::Itertools;
-    use mock::test_ctx::{helpers::*, TestContext};
+    use mock::{
+        test_ctx::{helpers::*, TestContext},
+        CALLS_IN_ANCHOR,
+    };
     use pretty_assertions::assert_eq;
 
     #[test]
@@ -74,7 +77,7 @@ mod dup_tests {
             .iter()
             .enumerate()
         {
-            let step = builder.block.txs()[0]
+            let step = builder.block.txs()[1]
                 .steps()
                 .iter()
                 .filter(|step| step.exec_state.is_dup())
@@ -87,11 +90,11 @@ mod dup_tests {
                 [
                     (
                         RW::READ,
-                        &StackOp::new(1, StackAddress(1024 - 3 + i), *word)
+                        &StackOp::new(CALLS_IN_ANCHOR + 1, StackAddress(1024 - 3 + i), *word)
                     ),
                     (
                         RW::WRITE,
-                        &StackOp::new(1, StackAddress(1024 - 4 - i), *word)
+                        &StackOp::new(CALLS_IN_ANCHOR + 1, StackAddress(1024 - 4 - i), *word)
                     )
                 ]
             )

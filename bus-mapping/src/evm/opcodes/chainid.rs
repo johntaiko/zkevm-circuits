@@ -14,7 +14,7 @@ mod chainid_tests {
 
     use mock::{
         test_ctx::{helpers::*, TestContext},
-        MOCK_CHAIN_ID,
+        CALLS_IN_ANCHOR, MOCK_CHAIN_ID,
     };
     use pretty_assertions::assert_eq;
 
@@ -40,7 +40,7 @@ mod chainid_tests {
             .handle_block(&block.eth_block, &block.geth_traces)
             .unwrap();
 
-        let step = builder.block.txs()[0]
+        let step = builder.block.txs()[1]
             .steps()
             .iter()
             .find(|step| step.exec_state == ExecState::Op(OpcodeId::CHAINID))
@@ -54,7 +54,11 @@ mod chainid_tests {
             },
             (
                 RW::WRITE,
-                &StackOp::new(1, StackAddress::from(1023), *MOCK_CHAIN_ID)
+                &StackOp::new(
+                    CALLS_IN_ANCHOR + 1,
+                    StackAddress::from(1023),
+                    *MOCK_CHAIN_ID
+                )
             )
         );
     }

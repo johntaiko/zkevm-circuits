@@ -207,7 +207,10 @@ mod log_tests {
         Bytecode, ToWord, Word,
     };
 
-    use mock::test_ctx::{helpers::*, TestContext};
+    use mock::{
+        test_ctx::{helpers::*, TestContext},
+        CALLS_IN_ANCHOR,
+    };
     use pretty_assertions::assert_eq;
 
     #[test]
@@ -290,16 +293,16 @@ mod log_tests {
             .handle_block(&block.eth_block, &block.geth_traces)
             .unwrap();
 
-        let is_persistent = builder.block.txs()[0].calls()[0].is_persistent;
-        let callee_address = builder.block.txs()[0].tx.to_or_contract_addr();
+        let is_persistent = builder.block.txs()[1].calls()[0].is_persistent;
+        let callee_address = builder.block.txs()[1].tx.to_or_contract_addr();
 
-        let step = builder.block.txs()[0]
+        let step = builder.block.txs()[1]
             .steps()
             .iter()
             .find(|step| step.exec_state == ExecState::Op(cur_op_code))
             .unwrap();
 
-        let expected_call_id = builder.block.txs()[0].calls()[step.call_index].call_id;
+        let expected_call_id = builder.block.txs()[1].calls()[step.call_index].call_id;
 
         assert_eq!(
             [0, 1]
@@ -308,11 +311,11 @@ mod log_tests {
             [
                 (
                     RW::READ,
-                    &StackOp::new(1, StackAddress::from((1022 - topic_count) as u32), Word::from(mstart))
+                    &StackOp::new(CALLS_IN_ANCHOR + 1, StackAddress::from((1022 - topic_count) as u32), Word::from(mstart))
                 ),
                 (
                     RW::READ,
-                    &StackOp::new(1, StackAddress::from((1023 - topic_count) as u32), Word::from(msize))
+                    &StackOp::new(CALLS_IN_ANCHOR + 1, StackAddress::from((1023 - topic_count) as u32), Word::from(msize))
                 )
             ]
         );
@@ -327,15 +330,15 @@ mod log_tests {
                 (
                     RW::READ,
                     &CallContextOp {
-                        call_id: 1,
+                        call_id: CALLS_IN_ANCHOR + 1,
                         field: CallContextField::TxId,
-                        value: Word::from(1),
+                        value: Word::from(2),
                     },
                 ),
                 (
                     RW::READ,
                     &CallContextOp {
-                        call_id: 1,
+                        call_id: CALLS_IN_ANCHOR + 1,
                         field: CallContextField::IsStatic,
                         value: Word::from(0),
                     },
@@ -343,7 +346,7 @@ mod log_tests {
                 (
                     RW::READ,
                     &CallContextOp {
-                        call_id: 1,
+                        call_id: CALLS_IN_ANCHOR + 1,
                         field: CallContextField::CalleeAddress,
                         value: callee_address.to_word(),
                     },
@@ -351,7 +354,7 @@ mod log_tests {
                 (
                     RW::READ,
                     &CallContextOp {
-                        call_id: 1,
+                        call_id: CALLS_IN_ANCHOR + 1,
                         field: CallContextField::IsPersistent,
                         value: Word::from(1),
                     },
@@ -368,7 +371,7 @@ mod log_tests {
                 [(
                     RW::WRITE,
                     &TxLogOp {
-                        tx_id: 1,
+                        tx_id: 2,
                         log_id: step.log_id + 1,
                         field: TxLogField::Address,
                         index: 0,
@@ -383,7 +386,7 @@ mod log_tests {
         for (idx, topic) in topics.iter().rev().enumerate() {
             log_topic_ops.push((
                 RW::WRITE,
-                TxLogOp::new(1, step.log_id + 1, TxLogField::Topic, idx, *topic),
+                TxLogOp::new(2, step.log_id + 1, TxLogField::Topic, idx, *topic),
             ));
         }
         assert_eq!(
@@ -407,13 +410,17 @@ mod log_tests {
                 (mstart..msize).for_each(|idx| {
                     memory_ops.push((
                         RW::READ,
-                        MemoryOp::new(1, (mstart + idx).into(), memory_data[mstart + idx]),
+                        MemoryOp::new(
+                            CALLS_IN_ANCHOR + 1,
+                            (mstart + idx).into(),
+                            memory_data[mstart + idx],
+                        ),
                     ));
                     // tx log addition
                     log_data_ops.push((
                         RW::WRITE,
                         TxLogOp::new(
-                            1,
+                            2,
                             step.log_id + 1, // because it is in next CopyToLog step
                             TxLogField::Data,
                             idx - mstart,
@@ -444,7 +451,7 @@ mod log_tests {
         assert_eq!(copy_events[0].src_addr as usize, mstart);
         assert_eq!(copy_events[0].src_addr_end as usize, mstart + msize);
         assert_eq!(copy_events[0].dst_type, CopyDataType::TxLog);
-        assert_eq!(copy_events[0].dst_id, NumberOrHash::Number(1)); // tx_id
+        assert_eq!(copy_events[0].dst_id, NumberOrHash::Number(2)); // tx_id
         assert_eq!(copy_events[0].dst_addr as usize, 0);
         assert_eq!(copy_events[0].log_id, Some(step.log_id as u64 + 1));
 

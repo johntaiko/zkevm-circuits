@@ -164,7 +164,7 @@ mod extcodesize_tests {
         // Check if account address is in access list as a result of bus mapping.
         assert!(builder.sdb.add_account_to_access_list(account.address));
 
-        let tx_id = 1;
+        let tx_id = 2;
         let transaction = &builder.block.txs()[tx_id - 1];
         let call_id = transaction.calls()[0].call_id;
 

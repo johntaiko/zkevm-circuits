@@ -120,7 +120,7 @@ mod codecopy_tests {
     };
     use mock::{
         test_ctx::helpers::{account_0_code_account_1_no_code, tx_from_1_to_0},
-        TestContext,
+        TestContext, CALLS_IN_ANCHOR,
     };
 
     use crate::{
@@ -159,13 +159,13 @@ mod codecopy_tests {
             .handle_block(&block.eth_block, &block.geth_traces)
             .unwrap();
 
-        let step = builder.block.txs()[0]
+        let step = builder.block.txs()[1]
             .steps()
             .iter()
             .find(|step| step.exec_state == ExecState::Op(OpcodeId::CODECOPY))
             .unwrap();
 
-        let expected_call_id = builder.block.txs()[0].calls()[step.call_index].call_id;
+        let expected_call_id = builder.block.txs()[1].calls()[step.call_index].call_id;
 
         assert_eq!(
             [0, 1, 2]
@@ -174,15 +174,15 @@ mod codecopy_tests {
             [
                 (
                     RW::READ,
-                    &StackOp::new(1, StackAddress::from(1021), Word::from(dst_offset)),
+                    &StackOp::new(CALLS_IN_ANCHOR + 1, StackAddress::from(1021), Word::from(dst_offset)),
                 ),
                 (
                     RW::READ,
-                    &StackOp::new(1, StackAddress::from(1022), Word::from(code_offset)),
+                    &StackOp::new(CALLS_IN_ANCHOR + 1, StackAddress::from(1022), Word::from(code_offset)),
                 ),
                 (
                     RW::READ,
-                    &StackOp::new(1, StackAddress::from(1023), Word::from(size)),
+                    &StackOp::new(CALLS_IN_ANCHOR + 1, StackAddress::from(1023), Word::from(size)),
                 ),
             ]
         );
@@ -198,7 +198,7 @@ mod codecopy_tests {
                     (
                         RW::WRITE,
                         MemoryOp::new(
-                            1,
+                            CALLS_IN_ANCHOR + 1,
                             MemoryAddress::from(dst_offset + idx),
                             if code_offset + idx < code.to_vec().len() {
                                 code.to_vec()[code_offset + idx]

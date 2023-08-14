@@ -59,7 +59,7 @@ mod stackonlyop_tests {
     use itertools::Itertools;
     use mock::{
         test_ctx::{helpers::*, TestContext},
-        MOCK_BASEFEE, MOCK_DIFFICULTY, MOCK_GASLIMIT,
+        CALLS_IN_ANCHOR, MOCK_BASEFEE, MOCK_DIFFICULTY, MOCK_GASLIMIT,
     };
     use pretty_assertions::assert_eq;
     use std::ops::{BitOr, BitXor};
@@ -85,7 +85,7 @@ mod stackonlyop_tests {
             .handle_block(&block.eth_block, &block.geth_traces)
             .unwrap();
 
-        let step = builder.block.txs()[0]
+        let step = builder.block.txs()[1]
             .steps()
             .iter()
             .find(|step| step.exec_state == ExecState::Op(opcode))
@@ -126,11 +126,11 @@ mod stackonlyop_tests {
                 STOP
             },
             vec![
-                StackOp::new(1, StackAddress(1022), Word::from(0x60)),
-                StackOp::new(1, StackAddress(1023), Word::from(0x80)),
+                StackOp::new(CALLS_IN_ANCHOR + 1, StackAddress(1022), Word::from(0x60)),
+                StackOp::new(CALLS_IN_ANCHOR + 1, StackAddress(1023), Word::from(0x80)),
             ],
             vec![StackOp::new(
-                1,
+                CALLS_IN_ANCHOR + 1,
                 StackAddress(1023),
                 Word::from(0x60) / Word::from(0x80),
             )],
@@ -148,11 +148,11 @@ mod stackonlyop_tests {
                 STOP
             },
             vec![
-                StackOp::new(1, StackAddress(1022), Word::from(0x60)),
-                StackOp::new(1, StackAddress(1023), Word::from(0x80)),
+                StackOp::new(CALLS_IN_ANCHOR + 1, StackAddress(1022), Word::from(0x60)),
+                StackOp::new(CALLS_IN_ANCHOR + 1, StackAddress(1023), Word::from(0x80)),
             ],
             vec![StackOp::new(
-                1,
+                CALLS_IN_ANCHOR + 1,
                 StackAddress(1023),
                 Word::from(0x60) % Word::from(0x80),
             )],
@@ -170,11 +170,11 @@ mod stackonlyop_tests {
                 STOP
             },
             vec![
-                StackOp::new(1, StackAddress(1022), Word::from(0x60)),
-                StackOp::new(1, StackAddress(1023), Word::from(0x80)),
+                StackOp::new(CALLS_IN_ANCHOR + 1, StackAddress(1022), Word::from(0x60)),
+                StackOp::new(CALLS_IN_ANCHOR + 1, StackAddress(1023), Word::from(0x80)),
             ],
             vec![StackOp::new(
-                1,
+                CALLS_IN_ANCHOR + 1,
                 StackAddress(1023),
                 Word::from(0x60) % Word::from(0x80),
             )],
@@ -191,10 +191,14 @@ mod stackonlyop_tests {
                 STOP
             },
             vec![
-                StackOp::new(1, StackAddress(1022), Word::from(a)),
-                StackOp::new(1, StackAddress(1023), Word::from(b)),
+                StackOp::new(CALLS_IN_ANCHOR + 1, StackAddress(1022), Word::from(a)),
+                StackOp::new(CALLS_IN_ANCHOR + 1, StackAddress(1023), Word::from(b)),
             ],
-            vec![StackOp::new(1, StackAddress(1023), Word::from(result))],
+            vec![StackOp::new(
+                CALLS_IN_ANCHOR + 1,
+                StackAddress(1023),
+                Word::from(result),
+            )],
         );
     }
 
@@ -215,10 +219,14 @@ mod stackonlyop_tests {
                 STOP
             },
             vec![
-                StackOp::new(1, StackAddress(1022), Word::from(a)),
-                StackOp::new(1, StackAddress(1023), Word::from(b)),
+                StackOp::new(CALLS_IN_ANCHOR + 1, StackAddress(1022), Word::from(a)),
+                StackOp::new(CALLS_IN_ANCHOR + 1, StackAddress(1023), Word::from(b)),
             ],
-            vec![StackOp::new(1, StackAddress(1023), Word::from(result))],
+            vec![StackOp::new(
+                CALLS_IN_ANCHOR + 1,
+                StackAddress(1023),
+                Word::from(result),
+            )],
         );
     }
     #[test]
@@ -238,10 +246,14 @@ mod stackonlyop_tests {
                 STOP
             },
             vec![
-                StackOp::new(1, StackAddress(1022), Word::from(a)),
-                StackOp::new(1, StackAddress(1023), Word::from(b)),
+                StackOp::new(CALLS_IN_ANCHOR + 1, StackAddress(1022), Word::from(a)),
+                StackOp::new(CALLS_IN_ANCHOR + 1, StackAddress(1023), Word::from(b)),
             ],
-            vec![StackOp::new(1, StackAddress(1023), Word::from(result))],
+            vec![StackOp::new(
+                CALLS_IN_ANCHOR + 1,
+                StackAddress(1023),
+                Word::from(result),
+            )],
         );
     }
 
@@ -262,10 +274,14 @@ mod stackonlyop_tests {
                 STOP
             },
             vec![
-                StackOp::new(1, StackAddress(1022), Word::from(a)),
-                StackOp::new(1, StackAddress(1023), Word::from(b)),
+                StackOp::new(CALLS_IN_ANCHOR + 1, StackAddress(1022), Word::from(a)),
+                StackOp::new(CALLS_IN_ANCHOR + 1, StackAddress(1023), Word::from(b)),
             ],
-            vec![StackOp::new(1, StackAddress(1023), Word::from(result))],
+            vec![StackOp::new(
+                CALLS_IN_ANCHOR + 1,
+                StackAddress(1023),
+                Word::from(result),
+            )],
         );
     }
     #[test]
@@ -285,10 +301,14 @@ mod stackonlyop_tests {
                 STOP
             },
             vec![
-                StackOp::new(1, StackAddress(1022), Word::from(a)),
-                StackOp::new(1, StackAddress(1023), Word::from(b)),
+                StackOp::new(CALLS_IN_ANCHOR + 1, StackAddress(1022), Word::from(a)),
+                StackOp::new(CALLS_IN_ANCHOR + 1, StackAddress(1023), Word::from(b)),
             ],
-            vec![StackOp::new(1, StackAddress(1023), Word::from(result))],
+            vec![StackOp::new(
+                CALLS_IN_ANCHOR + 1,
+                StackAddress(1023),
+                Word::from(result),
+            )],
         );
     }
     #[test]
@@ -308,10 +328,14 @@ mod stackonlyop_tests {
                 STOP
             },
             vec![
-                StackOp::new(1, StackAddress(1022), Word::from(a)),
-                StackOp::new(1, StackAddress(1023), Word::from(b)),
+                StackOp::new(CALLS_IN_ANCHOR + 1, StackAddress(1022), Word::from(a)),
+                StackOp::new(CALLS_IN_ANCHOR + 1, StackAddress(1023), Word::from(b)),
             ],
-            vec![StackOp::new(1, StackAddress(1023), Word::from(result))],
+            vec![StackOp::new(
+                CALLS_IN_ANCHOR + 1,
+                StackAddress(1023),
+                Word::from(result),
+            )],
         );
     }
     #[test]
@@ -331,10 +355,14 @@ mod stackonlyop_tests {
                 STOP
             },
             vec![
-                StackOp::new(1, StackAddress(1022), Word::from(a)),
-                StackOp::new(1, StackAddress(1023), Word::from(b)),
+                StackOp::new(CALLS_IN_ANCHOR + 1, StackAddress(1022), Word::from(a)),
+                StackOp::new(CALLS_IN_ANCHOR + 1, StackAddress(1023), Word::from(b)),
             ],
-            vec![StackOp::new(1, StackAddress(1023), Word::from(result))],
+            vec![StackOp::new(
+                CALLS_IN_ANCHOR + 1,
+                StackAddress(1023),
+                Word::from(result),
+            )],
         );
     }
     #[test]
@@ -354,12 +382,12 @@ mod stackonlyop_tests {
                 STOP
             },
             vec![StackOp::new(
-                1,
+                CALLS_IN_ANCHOR + 1,
                 StackAddress(1023),
                 word!("0x000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f"),
             )],
             vec![StackOp::new(
-                1,
+                CALLS_IN_ANCHOR + 1,
                 StackAddress(1023),
                 word!("0xfffefdfcfbfaf9f8f7f6f5f4f3f2f1f0efeeedecebeae9e8e7e6e5e4e3e2e1e0"),
             )],
@@ -375,7 +403,11 @@ mod stackonlyop_tests {
                 STOP
             },
             vec![],
-            vec![StackOp::new(1, StackAddress(1023), *MOCK_DIFFICULTY)],
+            vec![StackOp::new(
+                CALLS_IN_ANCHOR + 1,
+                StackAddress(1023),
+                *MOCK_DIFFICULTY,
+            )],
         );
     }
 
@@ -388,7 +420,11 @@ mod stackonlyop_tests {
                 STOP
             },
             vec![],
-            vec![StackOp::new(1, StackAddress(1023), *MOCK_GASLIMIT)],
+            vec![StackOp::new(
+                CALLS_IN_ANCHOR + 1,
+                StackAddress(1023),
+                *MOCK_GASLIMIT,
+            )],
         );
     }
 
@@ -401,7 +437,11 @@ mod stackonlyop_tests {
                 STOP
             },
             vec![],
-            vec![StackOp::new(1, StackAddress(1023), *MOCK_BASEFEE)],
+            vec![StackOp::new(
+                CALLS_IN_ANCHOR + 1,
+                StackAddress(1023),
+                *MOCK_BASEFEE,
+            )],
         );
     }
 }

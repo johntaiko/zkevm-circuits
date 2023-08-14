@@ -195,6 +195,7 @@ mod container_test {
         evm_types::{MemoryAddress, StackAddress},
         Address, Word,
     };
+    use mock::CALLS_IN_ANCHOR;
 
     #[test]
     fn operation_container_test() {
@@ -203,7 +204,7 @@ mod container_test {
         let stack_operation = Operation::new(
             global_counter.inc_pre(),
             RW::WRITE,
-            StackOp::new(1, StackAddress(1023), Word::from(0x100)),
+            StackOp::new(CALLS_IN_ANCHOR + 1, StackAddress(1023), Word::from(0x100)),
         );
         let memory_operation = Operation::new(
             global_counter.inc_pre(),

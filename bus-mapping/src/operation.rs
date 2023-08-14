@@ -1095,10 +1095,15 @@ impl<T: Op> Operation<T> {
 #[cfg(test)]
 mod operation_tests {
     use super::*;
+    use mock::CALLS_IN_ANCHOR;
 
     #[test]
     fn unchecked_op_transmutations_are_safe() {
-        let stack_op = StackOp::new(1, StackAddress::from(1024), Word::from(0x40));
+        let stack_op = StackOp::new(
+            CALLS_IN_ANCHOR + 1,
+            StackAddress::from(1024),
+            Word::from(0x40),
+        );
 
         let stack_op_as_operation = Operation::new(RWCounter(1), RW::WRITE, stack_op.clone());
 

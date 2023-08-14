@@ -184,7 +184,11 @@ impl<const NACC: usize, const NTX: usize> CircuitTestBuilder<NACC, NTX> {
         let params = if let Some(block) = self.block.as_ref() {
             block.circuits_params
         } else {
-            self.circuits_params.unwrap_or_default()
+            self.circuits_params.unwrap_or_else(|| CircuitsParams {
+                // at least 1 tx for anchor
+                max_txs: 2,
+                ..Default::default()
+            })
         };
 
         let block: Block<Fr> = if self.block.is_some() {
