@@ -122,7 +122,6 @@ type TraceConfig struct {
 	Accounts      map[common.Address]Account `json:"accounts"`
 	Transactions  []Transaction              `json:"transactions"`
 	LoggerConfig  *logger.Config             `json:"logger_config"`
-	Taiko         bool                       `json:"taiko"`
 	Treasury      common.Address             `json:"treasury"`
 }
 
@@ -130,23 +129,26 @@ func newUint64(val uint64) *uint64 { return &val }
 
 func Trace(config TraceConfig) ([]*ExecutionResult, error) {
 	chainConfig := params.ChainConfig{
-		ChainID:             toBigInt(config.ChainID),
-		HomesteadBlock:      big.NewInt(0),
-		DAOForkBlock:        big.NewInt(0),
-		DAOForkSupport:      true,
-		EIP150Block:         big.NewInt(0),
-		EIP150Hash:          common.Hash{},
-		EIP155Block:         big.NewInt(0),
-		EIP158Block:         big.NewInt(0),
-		ByzantiumBlock:      big.NewInt(0),
-		ConstantinopleBlock: big.NewInt(0),
-		PetersburgBlock:     big.NewInt(0),
-		IstanbulBlock:       big.NewInt(0),
-		MuirGlacierBlock:    big.NewInt(0),
-		BerlinBlock:         big.NewInt(0),
-		LondonBlock:         big.NewInt(0),
-		Taiko:               config.Taiko,
-		Treasury:            config.Treasury,
+		ChainID:                       toBigInt(config.ChainID),
+		HomesteadBlock:                big.NewInt(0),
+		DAOForkBlock:                  big.NewInt(0),
+		DAOForkSupport:                true,
+		EIP150Block:                   big.NewInt(0),
+		EIP150Hash:                    common.Hash{},
+		EIP155Block:                   big.NewInt(0),
+		EIP158Block:                   big.NewInt(0),
+		ByzantiumBlock:                big.NewInt(0),
+		ConstantinopleBlock:           big.NewInt(0),
+		PetersburgBlock:               big.NewInt(0),
+		IstanbulBlock:                 big.NewInt(0),
+		MuirGlacierBlock:              big.NewInt(0),
+		BerlinBlock:                   big.NewInt(0),
+		LondonBlock:                   big.NewInt(0),
+		ShanghaiTime:                  newUint64(0),
+		TerminalTotalDifficulty:       common.Big0,
+		TerminalTotalDifficultyPassed: true,
+		Taiko:                         true,
+		Treasury:                      config.Treasury,
 	}
 
 	var txsGasLimit uint64
