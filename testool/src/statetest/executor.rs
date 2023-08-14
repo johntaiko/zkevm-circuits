@@ -113,7 +113,8 @@ fn into_traceconfig(st: StateTest) -> (String, TraceConfig, StateTestResult) {
         .value(st.value)
         .data(st.data.clone())
         .gas(st.gas_limit)
-        .gas_price(st.gas_price);
+        .max_fee_per_gas(st.gas_fee_cap)
+        .max_priority_fee_per_gas(st.gas_tip_cap);
 
     if let Some(to) = st.to {
         tx = tx.to(to);
@@ -142,9 +143,9 @@ fn into_traceconfig(st: StateTest) -> (String, TraceConfig, StateTestResult) {
                 nonce: U64::from(st.nonce),
                 value: st.value,
                 gas_limit: U64::from(st.gas_limit),
-                gas_price: st.gas_price,
-                gas_fee_cap: U256::zero(),
-                gas_tip_cap: U256::zero(),
+                gas_price: U256::zero(),
+                gas_fee_cap: st.gas_fee_cap,
+                gas_tip_cap: st.gas_tip_cap,
                 call_data: st.data,
                 access_list: None,
                 v: sig.v,
