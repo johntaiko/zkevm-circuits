@@ -21,6 +21,9 @@ use num_bigint::BigUint;
 use once_cell::sync::Lazy;
 use sha3::{Digest, Keccak256};
 
+/// The number of calls in the anchor transaction.
+pub const CALLS_IN_ANCHOR: usize = 34;
+
 static GX1: Lazy<Word> =
     Lazy::new(|| word!("0x79BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798"));
 static GX2: Lazy<Word> =

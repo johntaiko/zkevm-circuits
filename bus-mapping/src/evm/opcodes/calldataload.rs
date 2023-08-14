@@ -178,14 +178,14 @@ mod calldataload_tests {
             .handle_block(&block.eth_block, &block.geth_traces)
             .unwrap();
 
-        let step = builder.block.txs()[0]
+        let step = builder.block.txs()[1]
             .steps()
             .iter()
             .find(|step| step.exec_state == ExecState::Op(OpcodeId::CALLDATALOAD))
             .unwrap();
 
-        let call_id = builder.block.txs()[0].calls()[step.call_index].call_id;
-        let caller_id = builder.block.txs()[0].calls()[step.call_index].caller_id;
+        let call_id = builder.block.txs()[1].calls()[step.call_index].call_id;
+        let caller_id = builder.block.txs()[1].calls()[step.call_index].caller_id;
 
         // 1 stack read, 3 call context reads, 32 memory reads and 1 stack write.
         assert_eq!(step.bus_mapping_instance.len(), 37);
@@ -289,13 +289,13 @@ mod calldataload_tests {
             .handle_block(&block.eth_block, &block.geth_traces)
             .unwrap();
 
-        let step = builder.block.txs()[0]
+        let step = builder.block.txs()[1]
             .steps()
             .iter()
             .find(|step| step.exec_state == ExecState::Op(OpcodeId::CALLDATALOAD))
             .unwrap();
 
-        let call_id = builder.block.txs()[0].calls()[0].call_id;
+        let call_id = builder.block.txs()[1].calls()[0].call_id;
 
         // 1 stack read, 2 call context reads and 1 stack write.
         assert_eq!(step.bus_mapping_instance.len(), 4);
@@ -329,7 +329,7 @@ mod calldataload_tests {
                     &CallContextOp {
                         call_id,
                         field: CallContextField::TxId,
-                        value: Word::from(1),
+                        value: Word::from(2),
                     }
                 ),
                 (

@@ -37,10 +37,10 @@ impl CircuitInputBuilderTx {
         let block = crate::mock::BlockData::new_from_geth_data(geth_data.clone());
         let mut builder = block.new_circuit_input_builder();
         let tx = builder
-            .new_tx(&block.eth_block, &block.eth_block.transactions[0], true)
+            .new_tx(&block.eth_block, &block.eth_block.transactions[1], true)
             .unwrap();
         let tx_ctx = TransactionContext::new(
-            &block.eth_block.transactions[0],
+            &block.eth_block.transactions[1],
             &GethExecTrace {
                 gas: Gas(0),
                 failed: false,
@@ -182,17 +182,17 @@ fn tracer_err_depth() {
     .unwrap()
     .into();
 
-    let struct_logs = &block.geth_traces[0].struct_logs;
+    let struct_logs = &block.geth_traces[1].struct_logs;
 
     // get last CALL
-    let (index, step) = block.geth_traces[0]
+    let (index, step) = block.geth_traces[1]
         .struct_logs
         .iter()
         .enumerate()
         .rev()
         .find(|(_, s)| s.op == OpcodeId::CALL)
         .unwrap();
-    let next_step = block.geth_traces[0].struct_logs.get(index + 1);
+    let next_step = block.geth_traces[1].struct_logs.get(index + 1);
     assert_eq!(step.op, OpcodeId::CALL);
     assert_eq!(step.depth, 1025u16);
     assert_eq!(step.error, None);
@@ -259,14 +259,14 @@ fn tracer_err_insufficient_balance() {
     .into();
 
     // get last CALL
-    let (index, step) = block.geth_traces[0]
+    let (index, step) = block.geth_traces[1]
         .struct_logs
         .iter()
         .enumerate()
         .rev()
         .find(|(_, s)| s.op == OpcodeId::CALL)
         .unwrap();
-    let next_step = block.geth_traces[0].struct_logs.get(index + 1);
+    let next_step = block.geth_traces[1].struct_logs.get(index + 1);
     assert_eq!(step.error, None);
     assert_eq!(next_step.unwrap().op, OpcodeId::PUSH2);
     assert_eq!(next_step.unwrap().stack, Stack(vec![Word::zero()])); // failure = 0
@@ -319,14 +319,14 @@ fn tracer_call_success() {
     .into();
 
     // get last CALL
-    let (index, step) = block.geth_traces[0]
+    let (index, step) = block.geth_traces[1]
         .struct_logs
         .iter()
         .enumerate()
         .rev()
         .find(|(_, s)| s.op == OpcodeId::CALL)
         .unwrap();
-    let next_step = block.geth_traces[0].struct_logs.get(index + 1);
+    let next_step = block.geth_traces[1].struct_logs.get(index + 1);
     assert_eq!(step.error, None);
     assert_eq!(next_step.unwrap().op, OpcodeId::STOP);
     assert_eq!(next_step.unwrap().stack, Stack(vec![]));
@@ -412,25 +412,25 @@ fn tracer_err_address_collision() {
     .into();
 
     // get last CREATE2
-    let (index, step) = block.geth_traces[0]
+    let (index, step) = block.geth_traces[1]
         .struct_logs
         .iter()
         .enumerate()
         .rev()
         .find(|(_, s)| s.op == OpcodeId::CREATE2)
         .unwrap();
-    let next_step = block.geth_traces[0].struct_logs.get(index + 1);
+    let next_step = block.geth_traces[1].struct_logs.get(index + 1);
     let memory = next_step.unwrap().memory.clone();
 
     let create2_address: Address = {
         // get first RETURN
-        let (index, _) = block.geth_traces[0]
+        let (index, _) = block.geth_traces[1]
             .struct_logs
             .iter()
             .enumerate()
             .find(|(_, s)| s.op == OpcodeId::RETURN)
             .unwrap();
-        let next_step = block.geth_traces[0].struct_logs.get(index + 1);
+        let next_step = block.geth_traces[1].struct_logs.get(index + 1);
         let addr_word = next_step.unwrap().stack.last().unwrap();
         addr_word.to_address()
     };
@@ -532,25 +532,25 @@ fn tracer_create_collision_free() {
     .into();
 
     // get last CREATE
-    let (index, step) = block.geth_traces[0]
+    let (index, step) = block.geth_traces[1]
         .struct_logs
         .iter()
         .enumerate()
         .rev()
         .find(|(_, s)| s.op == OpcodeId::CREATE)
         .unwrap();
-    let next_step = block.geth_traces[0].struct_logs.get(index + 1);
+    let next_step = block.geth_traces[1].struct_logs.get(index + 1);
     let memory = next_step.unwrap().memory.clone();
 
     let create_address: Address = {
         // get first RETURN
-        let (index, _) = block.geth_traces[0]
+        let (index, _) = block.geth_traces[1]
             .struct_logs
             .iter()
             .enumerate()
             .find(|(_, s)| s.op == OpcodeId::RETURN)
             .unwrap();
-        let next_step = block.geth_traces[0].struct_logs.get(index + 1);
+        let next_step = block.geth_traces[1].struct_logs.get(index + 1);
         let addr_word = next_step.unwrap().stack.last().unwrap();
         addr_word.to_address()
     };
@@ -662,14 +662,14 @@ fn tracer_err_code_store_out_of_gas() {
     .into();
 
     // get last RETURN
-    let (index, step) = block.geth_traces[0]
+    let (index, step) = block.geth_traces[1]
         .struct_logs
         .iter()
         .enumerate()
         .rev()
         .find(|(_, s)| s.op == OpcodeId::RETURN)
         .unwrap();
-    let next_step = block.geth_traces[0].struct_logs.get(index + 1);
+    let next_step = block.geth_traces[1].struct_logs.get(index + 1);
     assert!(check_err_code_store_out_of_gas(step, next_step));
 
     let mut builder = CircuitInputBuilderTx::new(&block, step);
@@ -713,14 +713,14 @@ fn tracer_err_code_store_out_of_gas_tx_deploy() {
     .into();
 
     // get last RETURN
-    let (index, step) = block.geth_traces[0]
+    let (index, step) = block.geth_traces[1]
         .struct_logs
         .iter()
         .enumerate()
         .rev()
         .find(|(_, s)| s.op == OpcodeId::RETURN)
         .unwrap();
-    let next_step = block.geth_traces[0].struct_logs.get(index + 1);
+    let next_step = block.geth_traces[1].struct_logs.get(index + 1);
     assert!(check_err_code_store_out_of_gas(step, next_step));
 
     let mut builder = CircuitInputBuilderTx::new(&block, step);
@@ -811,14 +811,14 @@ fn tracer_err_invalid_code() {
     .into();
 
     // get last RETURN
-    let (index, step) = block.geth_traces[0]
+    let (index, step) = block.geth_traces[1]
         .struct_logs
         .iter()
         .enumerate()
         .rev()
         .find(|(_, s)| s.op == OpcodeId::RETURN)
         .unwrap();
-    let next_step = block.geth_traces[0].struct_logs.get(index + 1);
+    let next_step = block.geth_traces[1].struct_logs.get(index + 1);
     assert!(check_err_invalid_code(step, next_step));
 
     let mut builder = CircuitInputBuilderTx::new(&block, step);
@@ -908,14 +908,14 @@ fn tracer_err_max_code_size_exceeded() {
     .into();
 
     // get last RETURN
-    let (index, step) = block.geth_traces[0]
+    let (index, step) = block.geth_traces[1]
         .struct_logs
         .iter()
         .enumerate()
         .rev()
         .find(|(_, s)| s.op == OpcodeId::RETURN)
         .unwrap();
-    let next_step = block.geth_traces[0].struct_logs.get(index + 1);
+    let next_step = block.geth_traces[1].struct_logs.get(index + 1);
     assert!(check_err_max_code_size_exceeded(step, next_step));
 
     let mut builder = CircuitInputBuilderTx::new(&block, step);
@@ -959,14 +959,14 @@ fn tracer_err_max_code_size_exceeded_tx_deploy() {
     .into();
 
     // get last RETURN
-    let (index, step) = block.geth_traces[0]
+    let (index, step) = block.geth_traces[1]
         .struct_logs
         .iter()
         .enumerate()
         .rev()
         .find(|(_, s)| s.op == OpcodeId::RETURN)
         .unwrap();
-    let next_step = block.geth_traces[0].struct_logs.get(index + 1);
+    let next_step = block.geth_traces[1].struct_logs.get(index + 1);
     assert!(check_err_max_code_size_exceeded(step, next_step));
 
     let mut builder = CircuitInputBuilderTx::new(&block, step);
@@ -1049,13 +1049,13 @@ fn tracer_create_stop() {
     .into();
 
     // get first STOP
-    let (index, step) = block.geth_traces[0]
+    let (index, step) = block.geth_traces[1]
         .struct_logs
         .iter()
         .enumerate()
         .find(|(_, s)| s.op == OpcodeId::STOP)
         .unwrap();
-    let next_step = block.geth_traces[0].struct_logs.get(index + 1);
+    let next_step = block.geth_traces[1].struct_logs.get(index + 1);
 
     let mut builder = CircuitInputBuilderTx::new(&block, step);
     // Set up call context at STOP
@@ -1117,9 +1117,9 @@ fn tracer_err_invalid_jump() {
     .unwrap()
     .into();
 
-    assert_eq!(block.geth_traces[0].struct_logs.len(), 2);
-    let step = &block.geth_traces[0].struct_logs[index];
-    let next_step = block.geth_traces[0].struct_logs.get(index + 1);
+    assert_eq!(block.geth_traces[1].struct_logs.len(), 2);
+    let step = &block.geth_traces[1].struct_logs[index];
+    let next_step = block.geth_traces[1].struct_logs.get(index + 1);
     assert!(check_err_invalid_jump(step, next_step));
 
     let mut builder = CircuitInputBuilderTx::new(&block, step);
@@ -1166,8 +1166,8 @@ fn tracer_err_invalid_jump() {
     .unwrap()
     .into();
 
-    let step = &block.geth_traces[0].struct_logs[index];
-    let next_step = block.geth_traces[0].struct_logs.get(index + 1);
+    let step = &block.geth_traces[1].struct_logs[index];
+    let next_step = block.geth_traces[1].struct_logs.get(index + 1);
     assert!(check_err_invalid_jump(step, next_step));
 
     let mut builder = CircuitInputBuilderTx::new(&block, step);
@@ -1216,9 +1216,9 @@ fn tracer_err_execution_reverted() {
     .unwrap()
     .into();
 
-    assert_eq!(block.geth_traces[0].struct_logs.len(), 3);
-    let step = &block.geth_traces[0].struct_logs[index];
-    let next_step = block.geth_traces[0].struct_logs.get(index + 1);
+    assert_eq!(block.geth_traces[1].struct_logs.len(), 3);
+    let step = &block.geth_traces[1].struct_logs[index];
+    let next_step = block.geth_traces[1].struct_logs.get(index + 1);
     assert!(check_err_execution_reverted(step, next_step));
 
     let mut builder = CircuitInputBuilderTx::new(&block, step);
@@ -1266,8 +1266,8 @@ fn tracer_err_execution_reverted() {
     .unwrap()
     .into();
 
-    let step = &block.geth_traces[0].struct_logs[index];
-    let next_step = block.geth_traces[0].struct_logs.get(index + 1);
+    let step = &block.geth_traces[1].struct_logs[index];
+    let next_step = block.geth_traces[1].struct_logs.get(index + 1);
     assert!(check_err_execution_reverted(step, next_step));
 
     let mut builder = CircuitInputBuilderTx::new(&block, step);
@@ -1325,8 +1325,8 @@ fn tracer_stop() {
     .unwrap()
     .into();
 
-    let step = &block.geth_traces[0].struct_logs[index];
-    let next_step = block.geth_traces[0].struct_logs.get(index + 1);
+    let step = &block.geth_traces[1].struct_logs[index];
+    let next_step = block.geth_traces[1].struct_logs.get(index + 1);
 
     let mut builder = CircuitInputBuilderTx::new(&block, step);
     assert_eq!(
@@ -1394,14 +1394,14 @@ fn tracer_err_return_data_out_of_bounds() {
     .into();
 
     // get last RETURNDATACOPY
-    let (index, step) = block.geth_traces[0]
+    let (index, step) = block.geth_traces[1]
         .struct_logs
         .iter()
         .enumerate()
         .rev()
         .find(|(_, s)| s.op == OpcodeId::RETURNDATACOPY)
         .unwrap();
-    let next_step = block.geth_traces[0].struct_logs.get(index + 1);
+    let next_step = block.geth_traces[1].struct_logs.get(index + 1);
     assert!(check_err_return_data_out_of_bounds(step, next_step));
 
     let mut builder = CircuitInputBuilderTx::new(&block, step);
@@ -1443,8 +1443,8 @@ fn tracer_err_gas_uint_overflow() {
     .into();
 
     let index = 2; // MSTORE
-    let step = &block.geth_traces[0].struct_logs[index];
-    let next_step = block.geth_traces[0].struct_logs.get(index + 1);
+    let step = &block.geth_traces[1].struct_logs[index];
+    let next_step = block.geth_traces[1].struct_logs.get(index + 1);
     assert_eq!(step.op, OpcodeId::MSTORE);
     assert_eq!(step.error, Some(GETH_ERR_GAS_UINT_OVERFLOW.to_string()));
 
@@ -1481,9 +1481,9 @@ fn tracer_err_invalid_opcode() {
     .unwrap()
     .into();
 
-    let index = block.geth_traces[0].struct_logs.len() - 1; // 0x0f
-    let step = &block.geth_traces[0].struct_logs[index];
-    let next_step = block.geth_traces[0].struct_logs.get(index + 1);
+    let index = block.geth_traces[1].struct_logs.len() - 1; // 0x0f
+    let step = &block.geth_traces[1].struct_logs[index];
+    let next_step = block.geth_traces[1].struct_logs.get(index + 1);
     assert_eq!(step.op, OpcodeId::INVALID(0x0f));
 
     let mut builder = CircuitInputBuilderTx::new(&block, step);
@@ -1547,8 +1547,8 @@ fn tracer_err_write_protection(is_call: bool) {
     .into();
 
     let index = if is_call { 14 } else { 9 };
-    let step = &block.geth_traces[0].struct_logs[index];
-    let next_step = block.geth_traces[0].struct_logs.get(index + 1);
+    let step = &block.geth_traces[1].struct_logs[index];
+    let next_step = block.geth_traces[1].struct_logs.get(index + 1);
     let opcode = if is_call {
         OpcodeId::CALL
     } else {
@@ -1611,7 +1611,7 @@ fn tracer_err_out_of_gas() {
     )
     .unwrap()
     .into();
-    let struct_logs = &block.geth_traces[0].struct_logs;
+    let struct_logs = &block.geth_traces[1].struct_logs;
 
     assert_eq!(struct_logs[1].error, Some(GETH_ERR_OUT_OF_GAS.to_string()));
 }
@@ -1633,9 +1633,9 @@ fn tracer_err_stack_overflow() {
     .unwrap()
     .into();
 
-    let index = block.geth_traces[0].struct_logs.len() - 1; // PUSH2
-    let step = &block.geth_traces[0].struct_logs[index];
-    let next_step = block.geth_traces[0].struct_logs.get(index + 1);
+    let index = block.geth_traces[1].struct_logs.len() - 1; // PUSH2
+    let step = &block.geth_traces[1].struct_logs[index];
+    let next_step = block.geth_traces[1].struct_logs.get(index + 1);
     assert_eq!(
         step.error,
         Some(format!("{} 1024 (1023)", GETH_ERR_STACK_OVERFLOW))
@@ -1665,8 +1665,8 @@ fn tracer_err_stack_underflow() {
     .into();
 
     let index = 0; // SWAP5
-    let step = &block.geth_traces[0].struct_logs[index];
-    let next_step = block.geth_traces[0].struct_logs.get(index + 1);
+    let step = &block.geth_traces[1].struct_logs[index];
+    let next_step = block.geth_traces[1].struct_logs.get(index + 1);
     assert_eq!(
         step.error,
         Some(format!("{} (0 <=> 6)", GETH_ERR_STACK_UNDERFLOW))
@@ -1749,18 +1749,18 @@ fn create2_address() {
     .into();
 
     // get RETURN
-    let (index_return, _) = block.geth_traces[0]
+    let (index_return, _) = block.geth_traces[1]
         .struct_logs
         .iter()
         .enumerate()
         .find(|(_, s)| s.op == OpcodeId::RETURN)
         .unwrap();
-    let next_step_return = block.geth_traces[0].struct_logs.get(index_return + 1);
+    let next_step_return = block.geth_traces[1].struct_logs.get(index_return + 1);
     let addr_expect = next_step_return.unwrap().stack.last().unwrap();
     let memory = next_step_return.unwrap().memory.clone();
 
     // get CREATE2
-    let step_create2 = block.geth_traces[0]
+    let step_create2 = block.geth_traces[1]
         .struct_logs
         .iter()
         .find(|s| s.op == OpcodeId::CREATE2)
@@ -1847,18 +1847,18 @@ fn create_address() {
     .into();
 
     // get last RETURN
-    let (index_return, _) = block.geth_traces[0]
+    let (index_return, _) = block.geth_traces[1]
         .struct_logs
         .iter()
         .enumerate()
         .rev()
         .find(|(_, s)| s.op == OpcodeId::RETURN)
         .unwrap();
-    let next_step_return = block.geth_traces[0].struct_logs.get(index_return + 1);
+    let next_step_return = block.geth_traces[1].struct_logs.get(index_return + 1);
     let addr_expect = next_step_return.unwrap().stack.last().unwrap();
 
     // get last CREATE
-    let step_create = block.geth_traces[0]
+    let step_create = block.geth_traces[1]
         .struct_logs
         .iter()
         .rev()
@@ -1932,8 +1932,8 @@ fn test_gen_access_trace() {
 
     let access_trace = gen_state_access_trace(
         &block.eth_block,
-        &block.eth_block.transactions[0],
-        &block.geth_traces[0],
+        &block.eth_block.transactions[1],
+        &block.geth_traces[1],
     )
     .unwrap();
 
@@ -2019,8 +2019,8 @@ fn test_gen_access_trace_call_EOA_no_new_stack_frame() {
 
     let access_trace = gen_state_access_trace(
         &block.eth_block,
-        &block.eth_block.transactions[0],
-        &block.geth_traces[0],
+        &block.eth_block.transactions[1],
+        &block.geth_traces[1],
     )
     .unwrap();
 
@@ -2154,8 +2154,8 @@ fn test_gen_access_trace_create_push_call_stack() {
 
     let access_trace = gen_state_access_trace(
         &block.eth_block,
-        &block.eth_block.transactions[0],
-        &block.geth_traces[0],
+        &block.eth_block.transactions[1],
+        &block.geth_traces[1],
     )
     .unwrap();
 

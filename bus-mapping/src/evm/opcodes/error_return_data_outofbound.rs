@@ -128,7 +128,7 @@ mod tests {
             .handle_block(&block.eth_block, &block.geth_traces)
             .unwrap();
 
-        let tx_id = 1;
+        let tx_id = 2;
         let transaction = &builder.block.txs()[tx_id - 1];
         let step = transaction
             .steps()

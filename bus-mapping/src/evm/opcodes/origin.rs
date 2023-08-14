@@ -51,7 +51,7 @@ mod origin_tests {
     use eth_types::{bytecode, evm_types::StackAddress, geth_types::GethData, ToWord, Word};
     use mock::{
         test_ctx::{helpers::*, TestContext},
-        MOCK_ACCOUNTS,
+        CALLS_IN_ANCHOR, MOCK_ACCOUNTS,
     };
     use pretty_assertions::assert_eq;
 
@@ -78,7 +78,7 @@ mod origin_tests {
             .handle_block(&block.eth_block, &block.geth_traces)
             .unwrap();
 
-        let step = builder.block.txs()[0]
+        let step = builder.block.txs()[1]
             .steps()
             .iter()
             .find(|step| step.exec_state == ExecState::Op(OpcodeId::ORIGIN))
@@ -89,11 +89,15 @@ mod origin_tests {
             (op_origin.rw(), op_origin.op()),
             (
                 RW::WRITE,
-                &StackOp::new(1, StackAddress(1023usize), MOCK_ACCOUNTS[1].to_word())
+                &StackOp::new(
+                    CALLS_IN_ANCHOR + 1,
+                    StackAddress(1023usize),
+                    MOCK_ACCOUNTS[1].to_word()
+                )
             )
         );
 
-        let call_id = builder.block.txs()[0].calls()[0].call_id;
+        let call_id = builder.block.txs()[1].calls()[0].call_id;
 
         assert_eq!(
             {
@@ -106,7 +110,7 @@ mod origin_tests {
                 &CallContextOp {
                     call_id,
                     field: CallContextField::TxId,
-                    value: Word::one(),
+                    value: Word::from(2),
                 }
             )
         );

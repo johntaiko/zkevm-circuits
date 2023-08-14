@@ -161,7 +161,7 @@ mod calldatacopy_tests {
     use mock::{
         generate_mock_call_bytecode,
         test_ctx::{helpers::*, TestContext},
-        MockCallBytecodeParams,
+        MockCallBytecodeParams, CALLS_IN_ANCHOR,
     };
     use pretty_assertions::assert_eq;
 
@@ -218,14 +218,14 @@ mod calldatacopy_tests {
             .handle_block(&block.eth_block, &block.geth_traces)
             .unwrap();
 
-        let step = builder.block.txs()[0]
+        let step = builder.block.txs()[1]
             .steps()
             .iter()
             .find(|step| step.exec_state == ExecState::Op(OpcodeId::CALLDATACOPY))
             .unwrap();
 
-        let caller_id = builder.block.txs()[0].calls()[step.call_index].caller_id;
-        let expected_call_id = builder.block.txs()[0].calls()[step.call_index].call_id;
+        let caller_id = builder.block.txs()[1].calls()[step.call_index].caller_id;
+        let expected_call_id = builder.block.txs()[1].calls()[step.call_index].call_id;
 
         // 3 stack reads + 3 call context reads.
         assert_eq!(step.bus_mapping_instance.len(), 6);
@@ -263,7 +263,7 @@ mod calldatacopy_tests {
                     &CallContextOp {
                         call_id: expected_call_id,
                         field: CallContextField::CallerId,
-                        value: Word::from(1),
+                        value: Word::from(CALLS_IN_ANCHOR + 1),
                     }
                 ),
                 (
@@ -424,13 +424,13 @@ mod calldatacopy_tests {
             .handle_block(&block.eth_block, &block.geth_traces)
             .unwrap();
 
-        let step = builder.block.txs()[0]
+        let step = builder.block.txs()[1]
             .steps()
             .iter()
             .find(|step| step.exec_state == ExecState::Op(OpcodeId::CALLDATACOPY))
             .unwrap();
 
-        let expected_call_id = builder.block.txs()[0].calls()[step.call_index].call_id;
+        let expected_call_id = builder.block.txs()[1].calls()[step.call_index].call_id;
         assert_eq!(step.bus_mapping_instance.len(), 5);
 
         assert_eq!(
@@ -440,15 +440,15 @@ mod calldatacopy_tests {
             [
                 (
                     RW::READ,
-                    &StackOp::new(1, StackAddress::from(1021), dst_offset.into())
+                    &StackOp::new(CALLS_IN_ANCHOR+1, StackAddress::from(1021), dst_offset.into())
                 ),
                 (
                     RW::READ,
-                    &StackOp::new(1, StackAddress::from(1022), offset.into())
+                    &StackOp::new(CALLS_IN_ANCHOR+1, StackAddress::from(1022), offset.into())
                 ),
                 (
                     RW::READ,
-                    &StackOp::new(1, StackAddress::from(1023), size.into())
+                    &StackOp::new(CALLS_IN_ANCHOR+1, StackAddress::from(1023), size.into())
                 ),
             ]
         );
@@ -462,15 +462,15 @@ mod calldatacopy_tests {
                 (
                     RW::READ,
                     &CallContextOp {
-                        call_id: builder.block.txs()[0].calls()[0].call_id,
+                        call_id: builder.block.txs()[1].calls()[0].call_id,
                         field: CallContextField::TxId,
-                        value: Word::from(1),
+                        value: Word::from(2),
                     }
                 ),
                 (
                     RW::READ,
                     &CallContextOp {
-                        call_id: builder.block.txs()[0].calls()[0].call_id,
+                        call_id: builder.block.txs()[1].calls()[0].call_id,
                         field: CallContextField::CallDataLength,
                         value: calldata_len.into(),
                     },

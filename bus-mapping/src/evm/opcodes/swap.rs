@@ -43,7 +43,10 @@ mod swap_tests {
     };
     use eth_types::{bytecode, evm_types::StackAddress, geth_types::GethData, Word};
     use itertools::Itertools;
-    use mock::test_ctx::{helpers::*, TestContext};
+    use mock::{
+        test_ctx::{helpers::*, TestContext},
+        CALLS_IN_ANCHOR,
+    };
     use pretty_assertions::assert_eq;
 
     #[test]
@@ -78,7 +81,7 @@ mod swap_tests {
 
         // Generate steps corresponding to DUP1, DUP3, DUP5
         for (i, (a, b)) in [(6, 5), (5, 3), (3, 1)].iter().enumerate() {
-            let step = builder.block.txs()[0]
+            let step = builder.block.txs()[1]
                 .steps()
                 .iter()
                 .filter(|step| step.exec_state.is_swap())
@@ -95,10 +98,10 @@ mod swap_tests {
                         [step.bus_mapping_instance[idx].as_usize()])
                     .map(|operation| (operation.rw(), operation.op())),
                 [
-                    (RW::READ, &StackOp::new(1, b_pos, b_val)),
-                    (RW::READ, &StackOp::new(1, a_pos, a_val)),
-                    (RW::WRITE, &StackOp::new(1, b_pos, a_val)),
-                    (RW::WRITE, &StackOp::new(1, a_pos, b_val)),
+                    (RW::READ, &StackOp::new(CALLS_IN_ANCHOR + 1, b_pos, b_val)),
+                    (RW::READ, &StackOp::new(CALLS_IN_ANCHOR + 1, a_pos, a_val)),
+                    (RW::WRITE, &StackOp::new(CALLS_IN_ANCHOR + 1, b_pos, a_val)),
+                    (RW::WRITE, &StackOp::new(CALLS_IN_ANCHOR + 1, a_pos, b_val)),
                 ]
             );
         }

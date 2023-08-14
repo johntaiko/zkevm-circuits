@@ -134,7 +134,6 @@ func Trace(config TraceConfig) ([]*ExecutionResult, error) {
 		DAOForkBlock:                  big.NewInt(0),
 		DAOForkSupport:                true,
 		EIP150Block:                   big.NewInt(0),
-		EIP150Hash:                    common.Hash{},
 		EIP155Block:                   big.NewInt(0),
 		EIP158Block:                   big.NewInt(0),
 		ByzantiumBlock:                big.NewInt(0),
@@ -148,7 +147,6 @@ func Trace(config TraceConfig) ([]*ExecutionResult, error) {
 		TerminalTotalDifficulty:       common.Big0,
 		TerminalTotalDifficultyPassed: true,
 		Taiko:                         true,
-		Treasury:                      config.Treasury,
 	}
 
 	var txsGasLimit uint64
@@ -178,13 +176,17 @@ func Trace(config TraceConfig) ([]*ExecutionResult, error) {
 			Data:              tx.CallData,
 			AccessList:        txAccessList,
 			SkipAccountChecks: false,
-			IsFirstTx:         i == 0,
 		}
 
 		txsGasLimit += uint64(tx.GasLimit)
 	}
 	if txsGasLimit > blockGasLimit {
 		return nil, fmt.Errorf("txs total gas: %d Exceeds block gas limit: %d", txsGasLimit, blockGasLimit)
+	}
+
+	random := common.Hash{}
+	if config.Block.Difficulty != nil {
+		random = common.BigToHash(config.Block.Difficulty.ToInt())
 	}
 
 	blockCtx := vm.BlockContext{
@@ -204,6 +206,7 @@ func Trace(config TraceConfig) ([]*ExecutionResult, error) {
 		Difficulty:  toBigInt(config.Block.Difficulty),
 		BaseFee:     toBigInt(config.Block.BaseFee),
 		GasLimit:    blockGasLimit,
+		Random:      &random,
 	}
 
 	// Setup state db with accounts from argument
@@ -224,7 +227,7 @@ func Trace(config TraceConfig) ([]*ExecutionResult, error) {
 	executionResults := make([]*ExecutionResult, len(config.Transactions))
 	for i, message := range messages {
 		tracer := logger.NewStructLogger(config.LoggerConfig)
-		evm := vm.NewEVM(blockCtx, core.NewEVMTxContext(&message), stateDB, &chainConfig, vm.Config{Debug: true, Tracer: tracer, NoBaseFee: true})
+		evm := vm.NewEVM(blockCtx, core.NewEVMTxContext(&message), stateDB, &chainConfig, vm.Config{Tracer: tracer, NoBaseFee: true})
 
 		result, err := core.ApplyMessage(evm, &message, new(core.GasPool).AddGas(message.GasLimit))
 		if err != nil {

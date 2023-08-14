@@ -51,7 +51,10 @@ mod gasprice_tests {
         Error,
     };
     use eth_types::{bytecode, evm_types::StackAddress, geth_types::GethData, Word};
-    use mock::test_ctx::{helpers::*, TestContext};
+    use mock::{
+        test_ctx::{helpers::*, TestContext},
+        CALLS_IN_ANCHOR,
+    };
     use pretty_assertions::assert_eq;
 
     #[test]
@@ -84,7 +87,7 @@ mod gasprice_tests {
             .handle_block(&block.eth_block, &block.geth_traces)
             .unwrap();
 
-        let step = builder.block.txs()[0]
+        let step = builder.block.txs()[1]
             .steps()
             .iter()
             .find(|step| step.exec_state == ExecState::Op(OpcodeId::GASPRICE))
@@ -95,11 +98,11 @@ mod gasprice_tests {
             (op_gasprice.rw(), op_gasprice.op()),
             (
                 RW::WRITE,
-                &StackOp::new(1, StackAddress(1023usize), two_gwei)
+                &StackOp::new(CALLS_IN_ANCHOR + 1, StackAddress(1023usize), two_gwei)
             )
         );
 
-        let call_id = builder.block.txs()[0].calls()[0].call_id;
+        let call_id = builder.block.txs()[1].calls()[0].call_id;
 
         assert_eq!(
             {
@@ -112,7 +115,7 @@ mod gasprice_tests {
                 &CallContextOp {
                     call_id,
                     field: CallContextField::TxId,
-                    value: Word::one(),
+                    value: Word::from(2),
                 }
             )
         );

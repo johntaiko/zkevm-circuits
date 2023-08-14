@@ -54,7 +54,10 @@ mod caller_tests {
         ToWord,
     };
 
-    use mock::test_ctx::{helpers::*, TestContext};
+    use mock::{
+        test_ctx::{helpers::*, TestContext},
+        CALLS_IN_ANCHOR,
+    };
     use pretty_assertions::assert_eq;
 
     #[test]
@@ -79,14 +82,14 @@ mod caller_tests {
             .handle_block(&block.eth_block, &block.geth_traces)
             .unwrap();
 
-        let step = builder.block.txs()[0]
+        let step = builder.block.txs()[1]
             .steps()
             .iter()
             .find(|step| step.exec_state == ExecState::Op(OpcodeId::CALLER))
             .unwrap();
 
-        let call_id = builder.block.txs()[0].calls()[0].call_id;
-        let caller_address = block.eth_block.transactions[0].from.to_word();
+        let call_id = builder.block.txs()[1].calls()[0].call_id;
+        let caller_address = block.eth_block.transactions[1].from.to_word();
         assert_eq!(
             {
                 let operation =
@@ -110,7 +113,11 @@ mod caller_tests {
             },
             (
                 RW::WRITE,
-                &StackOp::new(1, StackAddress::from(1023), caller_address)
+                &StackOp::new(
+                    CALLS_IN_ANCHOR + 1,
+                    StackAddress::from(1023),
+                    caller_address
+                )
             )
         );
     }
