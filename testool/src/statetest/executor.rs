@@ -7,7 +7,7 @@ use bus_mapping::{
 use eth_types::{geth_types, Address, Bytes, GethExecTrace, U256, U64};
 use ethers_core::{
     k256::ecdsa::SigningKey,
-    types::{transaction::eip2718::TypedTransaction, TransactionRequest},
+    types::{transaction::eip2718::TypedTransaction, Eip1559TransactionRequest},
 };
 use ethers_signers::{LocalWallet, Signer};
 use external_tracer::TraceConfig;
@@ -106,7 +106,7 @@ fn check_post(
 fn into_traceconfig(st: StateTest) -> (String, TraceConfig, StateTestResult) {
     let chain_id = 1;
     let wallet = LocalWallet::from_str(&hex::encode(st.secret_key.0)).unwrap();
-    let mut tx = TransactionRequest::new()
+    let mut tx = Eip1559TransactionRequest::new()
         .chain_id(chain_id)
         .from(st.from)
         .nonce(st.nonce)

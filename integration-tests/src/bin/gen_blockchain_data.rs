@@ -3,8 +3,7 @@ use ethers::{
     contract::{builders::ContractCall, Contract, ContractFactory},
     core::{
         types::{
-            transaction::eip2718::TypedTransaction, Address, TransactionReceipt,
-            TransactionRequest, U256, U64,
+            transaction::eip2718::TypedTransaction, Address, Eip1559TransactionRequest, U256, U64,
         },
         utils::WEI_IN_ETHER,
     },
@@ -148,7 +147,7 @@ async fn main() {
     //
 
     info!("Transferring funds from coinbase...");
-    let tx = TransactionRequest::new()
+    let tx = Eip1559TransactionRequest::new()
         .to(wallet0.address())
         .value(WEI_IN_ETHER) // send 1 ETH
         .from(accounts[0]);
@@ -214,7 +213,7 @@ async fn main() {
     cli.miner_stop().await.expect("cannot stop miner");
     let mut pending_txs = Vec::new();
     for wallet in &wallets[0..NUM_TXS] {
-        let tx = TransactionRequest::new()
+        let tx = Eip1559TransactionRequest::new()
             .to(wallet.address())
             .value(WEI_IN_ETHER * 2u8) // send 2 ETH
             .from(accounts[0]);
@@ -235,7 +234,7 @@ async fn main() {
     cli.miner_stop().await.expect("cannot stop miner");
     let mut pending_txs = Vec::new();
     for i in 0..NUM_TXS {
-        let tx = TransactionRequest::new()
+        let tx = Eip1559TransactionRequest::new()
             .to(wallets[i + 1].address())
             .value(WEI_IN_ETHER / (2 * (i + 1))) // send a fraction of an ETH
             .from(wallets[i].address());

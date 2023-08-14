@@ -80,7 +80,7 @@ pub fn block_1tx(protocol_instance: &ProtocolInstance) -> GethData {
                         .nonce(0)
                         .gas(Word::from(1_000_000u64));
                     let geth_tx: eth_types::Transaction = txs[1].clone().into();
-                    let req: ethers_core::types::TransactionRequest = (&geth_tx).into();
+                    let req: ethers_core::types::Eip1559TransactionRequest = (&geth_tx).into();
                     let sig = wallet_a.sign_transaction_sync(&req.chain_id(chain_id).into());
                     txs[1].sig_data((sig.v, sig.r, sig.s));
                 },
@@ -137,7 +137,7 @@ fn block_2tx(protocol_instance: &ProtocolInstance) -> GethData {
                         .nonce(0)
                         .gas(Word::from(1_000_000u64));
                     let geth_tx: eth_types::Transaction = txs[1].clone().into();
-                    let req: ethers_core::types::TransactionRequest = (&geth_tx).into();
+                    let req: ethers_core::types::Eip1559TransactionRequest = (&geth_tx).into();
                     let sig = wallet_a.sign_transaction_sync(&req.chain_id(chain_id).into());
                     txs[1].sig_data((sig.v, sig.r, sig.s));
                     txs[2]
@@ -146,7 +146,7 @@ fn block_2tx(protocol_instance: &ProtocolInstance) -> GethData {
                         .nonce(1)
                         .gas(Word::from(1_000_000u64));
                     let geth_tx: eth_types::Transaction = txs[2].clone().into();
-                    let req: ethers_core::types::TransactionRequest = (&geth_tx).into();
+                    let req: ethers_core::types::Eip1559TransactionRequest = (&geth_tx).into();
                     let sig = wallet_a.sign_transaction_sync(&req.chain_id(chain_id).into());
                     txs[2].sig_data((sig.v, sig.r, sig.s));
                 },
