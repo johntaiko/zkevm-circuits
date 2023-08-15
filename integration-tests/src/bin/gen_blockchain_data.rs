@@ -11,6 +11,7 @@ use ethers::{
     providers::{Middleware, PendingTransaction},
     signers::Signer,
     solc::Solc,
+    types::TransactionReceipt,
 };
 use integration_tests::{
     get_client, get_provider, get_wallet, log_init, CompiledContract, GenDataOutput, CONTRACTS,
