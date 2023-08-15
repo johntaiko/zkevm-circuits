@@ -63,7 +63,8 @@ struct JsonStateTest {
 struct Transaction {
     data: Vec<String>,
     gas_limit: Vec<String>,
-    gas_price: String,
+    gas_tip_cap: String,
+    gas_fee_cap: String,
     nonce: String,
     secret_key: String,
     to: String,
@@ -109,7 +110,8 @@ impl<'a> JsonStateTestBuilder<'a> {
             let secret_key = parse::parse_bytes(&test.transaction.secret_key)?;
             let from = secret_key_to_address(&SigningKey::from_bytes(&secret_key)?);
             let nonce = parse::parse_u64(&test.transaction.nonce)?;
-            let gas_price = parse::parse_u256(&test.transaction.gas_price)?;
+            let gas_tip_cap = parse::parse_u256(&test.transaction.gas_tip_cap)?;
+            let gas_fee_cap = parse::parse_u256(&test.transaction.gas_fee_cap)?;
 
             let data_s: Vec<_> = test
                 .transaction
@@ -173,7 +175,8 @@ impl<'a> JsonStateTestBuilder<'a> {
                                 to,
                                 secret_key: secret_key.clone(),
                                 nonce,
-                                gas_price,
+                                gas_tip_cap,
+                                gas_fee_cap,
                                 gas_limit: *gas_limit,
                                 value: *value,
                                 data: data.0.clone(),
@@ -347,7 +350,8 @@ mod test {
             "gasLimit" : [
                 "400000"
             ],
-            "gasPrice" : "10",
+            "gasTipCap" : "10",
+            "gasFeeCap" : "10",
             "nonce" : "0",
             "secretKey" : "45a915e4d060149eb4365960e6a7a45f334393093061116b197e3240065ff2d8",
             "to" : "095e7baea6a6c7c4c2dfeb977efac326af552d87",
@@ -387,7 +391,8 @@ mod test {
                 "0x095e7baea6a6c7c4c2dfeb977efac326af552d87",
             )?),
             gas_limit: 400000,
-            gas_price: U256::from(10u64),
+            gas_tip_cap: U256::from(10u64),
+            gas_fee_cap: U256::from(10u64),
             nonce: 0,
             value: U256::from(100000u64),
             data: Bytes::from(hex::decode("6001")?),

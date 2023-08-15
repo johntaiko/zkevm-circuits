@@ -46,7 +46,8 @@ pub struct StateTest {
     pub from: Address,
     pub to: Option<Address>,
     pub gas_limit: u64,
-    pub gas_price: U256,
+    pub gas_tip_cap: U256,
+    pub gas_fee_cap: U256,
     pub nonce: u64,
     pub value: U256,
     pub data: Bytes,
@@ -101,7 +102,8 @@ impl std::fmt::Display for StateTest {
         table.add_row(row!["from", format!("{:?}", self.from)]);
         table.add_row(row!["to", format!("{:?}", self.to)]);
         table.add_row(row!["gas_limit", format!("{}", self.gas_limit)]);
-        table.add_row(row!["gas_price", format!("{}", self.gas_price)]);
+        table.add_row(row!["gas_tip_cap", format!("{}", self.gas_tip_cap)]);
+        table.add_row(row!["gas_fee_cap", format!("{}", self.gas_fee_cap)]);
         table.add_row(row!["nonce", format!("{}", self.nonce)]);
         table.add_row(row!["value", format!("{}", self.value)]);
         table.add_row(row!["data", format(&hex::encode(&self.data), "")]);
@@ -272,7 +274,8 @@ impl StateTest {
             from,
             to,
             gas_limit,
-            gas_price: U256::one(),
+            gas_tip_cap: U256::one(),
+            gas_fee_cap: U256::one(),
             nonce: 0,
             value,
             data: data.into(),

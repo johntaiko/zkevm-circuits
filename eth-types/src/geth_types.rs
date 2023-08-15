@@ -6,7 +6,7 @@ use crate::{
     ToWord, Word, U64,
 };
 use ethers_core::{
-    types::{transaction::response, Eip1559TransactionRequest, NameOrAddress, TransactionRequest},
+    types::{transaction::response, Eip1559TransactionRequest, NameOrAddress},
     utils::get_contract_address,
 };
 use ethers_signers::{LocalWallet, Signer};
@@ -190,21 +190,6 @@ impl From<&crate::Transaction> for Transaction {
     }
 }
 
-impl From<&Transaction> for TransactionRequest {
-    fn from(tx: &Transaction) -> TransactionRequest {
-        TransactionRequest {
-            from: Some(tx.from),
-            to: tx.to.map(NameOrAddress::Address),
-            gas: Some(tx.gas_limit.to_word()),
-            gas_price: Some(tx.gas_price),
-            value: Some(tx.value),
-            data: Some(tx.call_data.clone()),
-            nonce: Some(tx.nonce.to_word()),
-            ..Default::default()
-        }
-    }
-}
-
 impl From<&Transaction> for Eip1559TransactionRequest {
     fn from(tx: &Transaction) -> Eip1559TransactionRequest {
         Eip1559TransactionRequest {
@@ -246,7 +231,7 @@ impl Transaction {
             Error::Signature(libsecp256k1::Error::InvalidSignature),
         )?;
         // msg = rlp([nonce, gasPrice, gas, to, value, data, sig_v, r, s])
-        let req: TransactionRequest = self.into();
+        let req: Eip1559TransactionRequest = self.into();
         let msg = req.chain_id(chain_id).rlp();
         let msg_hash: [u8; 32] = Keccak256::digest(&msg)
             .as_slice()
@@ -341,7 +326,7 @@ impl GethData {
             let wallet = wallets.get(&tx.from).unwrap();
             assert_eq!(Word::from(wallet.chain_id()), self.chain_id);
             let geth_tx: Transaction = (&*tx).into();
-            let req: TransactionRequest = (&geth_tx).into();
+            let req: Eip1559TransactionRequest = (&geth_tx).into();
             let sig = wallet.sign_transaction_sync(&req.chain_id(self.chain_id.as_u64()).into());
             tx.v = U64::from(sig.v);
             tx.r = sig.r;

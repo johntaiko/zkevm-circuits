@@ -7,7 +7,7 @@ use bus_mapping::{
 use eth_types::{geth_types, Address, Bytes, GethExecTrace, U256, U64};
 use ethers_core::{
     k256::ecdsa::SigningKey,
-    types::{transaction::eip2718::TypedTransaction, TransactionRequest},
+    types::{transaction::eip2718::TypedTransaction, Eip1559TransactionRequest},
 };
 use ethers_signers::{LocalWallet, Signer};
 use external_tracer::TraceConfig;
@@ -106,14 +106,15 @@ fn check_post(
 fn into_traceconfig(st: StateTest) -> (String, TraceConfig, StateTestResult) {
     let chain_id = 1;
     let wallet = LocalWallet::from_str(&hex::encode(st.secret_key.0)).unwrap();
-    let mut tx = TransactionRequest::new()
+    let mut tx = Eip1559TransactionRequest::new()
         .chain_id(chain_id)
         .from(st.from)
         .nonce(st.nonce)
         .value(st.value)
         .data(st.data.clone())
         .gas(st.gas_limit)
-        .gas_price(st.gas_price);
+        .max_fee_per_gas(st.gas_fee_cap)
+        .max_priority_fee_per_gas(st.gas_tip_cap);
 
     if let Some(to) = st.to {
         tx = tx.to(to);
@@ -142,9 +143,9 @@ fn into_traceconfig(st: StateTest) -> (String, TraceConfig, StateTestResult) {
                 nonce: U64::from(st.nonce),
                 value: st.value,
                 gas_limit: U64::from(st.gas_limit),
-                gas_price: st.gas_price,
-                gas_fee_cap: U256::zero(),
-                gas_tip_cap: U256::zero(),
+                gas_price: U256::zero(),
+                gas_fee_cap: st.gas_fee_cap,
+                gas_tip_cap: st.gas_tip_cap,
                 call_data: st.data,
                 access_list: None,
                 v: sig.v,
